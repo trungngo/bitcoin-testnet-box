@@ -1,7 +1,7 @@
 BITCOIND=bitcoind
 BITCOINGUI=bitcoin-qt
-B1_FLAGS=
-B2_FLAGS=
+B1_FLAGS=-regtest
+B2_FLAGS=-regtest
 B1=-datadir=1 $(B1_FLAGS)
 B2=-datadir=2 $(B2_FLAGS)
 
@@ -14,10 +14,13 @@ start-gui:
 	$(BITCOINGUI) $(B2) &
 
 generate-true:
-	$(BITCOIND) $(B1) setgenerate true
+	$(BITCOIND) $(B1) setgenerate true 101
 
 generate-false:
 	$(BITCOIND) $(B1) setgenerate false
+
+getbalance:
+	$(BITCOIND) $(B1) getbalance
 
 getinfo:
 	$(BITCOIND) $(B1) getinfo
