@@ -1,11 +1,8 @@
-# bitcoin-testnet-box docker image
-#
-# This image uses an "easy-mining" branch of bitcoind to make new blocks occur 
-# more frequently while mining with `make generate-true`
+# bitcoin-regtest-box docker image
 #
 
 FROM ubuntu:12.04
-MAINTAINER Sean Lavine <sean@vaurum.com>
+MAINTAINER Khoi Pham <pckhoi@gmail.com>
 
 # basic dependencies to build headless bitcoind
 # https://github.com/freewil/bitcoin/blob/easy-mining/doc/build-unix.md
@@ -18,22 +15,25 @@ RUN add-apt-repository --yes ppa:bitcoin/bitcoin
 RUN apt-get update
 RUN apt-get install --yes db4.8
 
-# install git to clone bitcoin's source
-RUN apt-get install --yes git
+# install wget to download latest bitcoin binary
+RUN apt-get install --yes wget
 
 # create a non-root user
 RUN adduser --disabled-login --gecos "" tester
 
+# change root password, should still be able to change back to root
+RUN echo 'root:abc123' |chpasswd
+
 # run following commands from user's home directory
 WORKDIR /home/tester
 
-# clone bitcoin easy-mining branch and build it without UPnP support
-RUN git clone https://github.com/freewil/bitcoin.git
-RUN cd bitcoin && git checkout easy-mining
-RUN cd bitcoin/src && make -f makefile.unix USE_UPNP=
+# download and extract bitcoind version 0.9.2.1
+RUN wget https://bitcoin.org/bin/0.9.2.1/bitcoin-0.9.2.1-linux.tar.gz
+RUN tar -xvzf bitcoin-0.9.2.1-linux.tar.gz
 
 # install bitcoind
-RUN cp bitcoin/src/bitcoind /usr/local/bin/bitcoind
+RUN cp bitcoin-0.9.2.1-linux/bin/64/bitcoind /usr/local/bin/bitcoind
+RUN cp bitcoin-0.9.2.1-linux/bin/64/bitcoin-cli /usr/local/bin/bitcoin-cli
 
 # copy the testnet-box files into the image
 ADD . /home/tester/bitcoin-testnet-box
